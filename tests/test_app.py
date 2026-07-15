@@ -1,21 +1,24 @@
 """
 Suite de tests pytest - Application de souscription produit client (Sujet 4)
-Utilise une base SQLite en memoire pour executer les tests sans PostgreSQL
+Utilise une base SQLite en mémoire pour exécuter les tests sans PostgreSQL
 (compatible GitHub Actions runner sans service additionnel).
 """
 
 import os
 import sys
 from datetime import date, timedelta
-
-os.environ["SKIP_DB_INIT"] = "1"
-os.environ["DATABASE_URL"] = "sqlite:///:memory:"
-
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "app"))
+from pathlib import Path
 
 import pytest
 
-import app as app_module  # noqa: E402
+# Configuration avant l'import de l'application
+os.environ["SKIP_DB_INIT"] = "1"
+os.environ["DATABASE_URL"] = "sqlite:///:memory:"
+
+# Ajout de la racine du projet au PYTHONPATH
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+
+import app.app as app_module  # noqa: E402
 
 
 @pytest.fixture()
