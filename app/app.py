@@ -10,7 +10,7 @@ Expose:
   PUT    /api/souscriptions/<id>    -> Modifier une souscription
   DELETE /api/souscriptions/<id>    -> Supprimer une souscription
   GET    /health                    -> Etat de sante du backend + BDD
-"""
+"""""
 
 import os
 import re
