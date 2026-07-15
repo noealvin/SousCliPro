@@ -1,6 +1,6 @@
 # SousClientPro — Souscription Produit Client (Sujet 4)
 
-Application DevOps clé en main : gestion CRUD complète des souscriptions produit (créer, lister, modifier, supprimer), persistance PostgreSQL, reverse proxy Nginx, pipeline CI/CD GitHub Actions.
+Application DevOps clé en main : gestion CRUD complète des souscriptions produit (créer, lister, modifier, supprimer), persistance PostgreSQL, reverse proxy Nginx, pipeline CI/CD Actions.
 
 ## Architecture
 
@@ -33,19 +33,20 @@ Réseaux Docker :
 
 ## Endpoints CRUD de l'API
 
-| Méthode | Route                          | Description                                  |
-|---------|---------------------------------|-----------------------------------------------|
-| GET     | `/`                              | Sert l'interface web                          |
-| POST    | `/api/souscriptions`             | Crée une souscription (Create)                |
-| GET     | `/api/souscriptions`             | Liste toutes les souscriptions (Read)         |
-| GET     | `/api/souscriptions/<id>`        | Récupère une souscription (Read)              |
-| PUT     | `/api/souscriptions/<id>`        | Modifie une souscription (Update)             |
-| DELETE  | `/api/souscriptions/<id>`        | Supprime une souscription (Delete)            |
-| GET     | `/health`                        | État de santé du backend et de la BDD         |
+| Méthode | Route                     | Description                           |
+| ------- | ------------------------- | ------------------------------------- |
+| GET     | `/`                       | Sert l'interface web                  |
+| POST    | `/api/souscriptions`      | Crée une souscription (Create)        |
+| GET     | `/api/souscriptions`      | Liste toutes les souscriptions (Read) |
+| GET     | `/api/souscriptions/<id>` | Récupère une souscription (Read)      |
+| PUT     | `/api/souscriptions/<id>` | Modifie une souscription (Update)     |
+| DELETE  | `/api/souscriptions/<id>` | Supprime une souscription (Delete)    |
+| GET     | `/health`                 | État de santé du backend et de la BDD |
 
 ## Authentification
 
 L'interface est protégée par une page de connexion. Identifiants par défaut (modifiables dans `.env`) :
+
 - Identifiant : `admin`
 - Mot de passe : `admin123`
 
