@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SousClientPro — Souscriptions</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Inter', sans-serif; background: #f5f4f2; color: #0a0a0a; }
+  header { position: sticky; top: 0; z-index: 10; background: #f5f4f2; border-bottom: 1px solid #0a0a0a; }
+  .header-inner { max-width: 1120px; margin: 0 auto; padding: 24px 28px; display: flex; align-items: center; justify-content: space-between; }
+  .brand { font-size: 13px; letter-spacing: 0.3em; text-transform: uppercase; font-weight: 600; }
+  .brand span { color: #8a8a86; }
+  .header-right { display: flex; align-items: center; gap: 28px; }
+  .tag { font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: #6b6b67; border: 1px solid #0a0a0a; padding: 6px 12px; white-space: nowrap; }
+  .logout-btn { font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase; color: #0a0a0a; background: none; border: none; border-bottom: 1px solid #0a0a0a; cursor: pointer; font-family: inherit; padding: 0 0 2px; }
+  main { max-width: 1120px; margin: 0 auto; padding: 64px 28px 96px; display: grid; grid-template-columns: 360px 1fr; gap: 96px; }
+  h1.section-title { font-size: 13px; letter-spacing: 0.15em; text-transform: uppercase; color: #6b6b67; margin-bottom: 4px; }
+  .form-title { font-size: 26px; font-weight: 500; letter-spacing: -0.01em; margin-bottom: 8px; }
+  .form-sub { font-size: 13px; color: #6b6b67; margin-bottom: 40px; }
+  form { display: flex; flex-direction: column; gap: 28px; }
+  .field label { display: block; font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase; color: #6b6b67; margin-bottom: 10px; }
+  .field input, .field select { width: 100%; border: none; border-bottom: 1px solid #0a0a0a; background: transparent; padding: 8px 0; font-size: 15px; color: #0a0a0a; font-family: inherit; appearance: none; -webkit-appearance: none; border-radius: 0; }
+  .field select { cursor: pointer; }
+  .field input:focus, .field select:focus { outline: none; border-bottom-width: 2px; }
+  .field input::placeholder { color: #b5b5b1; }
+  .field-error { font-size: 12px; color: #b3261e; margin-top: 6px; display: none; }
+  .btn-row { display: flex; gap: 16px; margin-top: 8px; }
+  button[type="submit"] { flex: 1; background: #0a0a0a; color: #f5f4f2; border: none; padding: 16px; font-size: 12px; letter-spacing: 0.2em; text-transform: uppercase; font-weight: 600; cursor: pointer; transition: opacity .15s ease; }
+  button[type="submit"]:hover { opacity: 0.82; }
+  button[type="submit"]:disabled { opacity: 0.4; cursor: default; }
+  .cancel-btn { display: none; padding: 16px 20px; font-size: 12px; letter-spacing: 0.15em; text-transform: uppercase; background: none; border: 1px solid #0a0a0a; color: #0a0a0a; cursor: pointer; font-family: inherit; }
+  .alert { margin-top: 24px; font-size: 13px; padding: 14px 0; border-top: 1px solid #0a0a0a; display: flex; gap: 10px; }
+  .alert.error { color: #b3261e; }
+  .table-header { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 32px; }
+  .refresh-btn { font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase; color: #0a0a0a; background: none; border: none; border-bottom: 1px solid #0a0a0a; cursor: pointer; font-family: inherit; padding: 0 0 2px; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  thead th { text-align: left; font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; color: #6b6b67; font-weight: 500; padding-bottom: 16px; border-bottom: 1px solid #0a0a0a; }
+  tbody td { padding: 18px 0; border-bottom: 1px solid #d8d7d3; vertical-align: middle; }
+  tbody tr:hover { background: #efeeea; }
+  .produit-tag { font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; border: 1px solid #0a0a0a; padding: 4px 10px; display: inline-block; }
+  .actions-cell { display: flex; gap: 10px; justify-content: flex-end; }
+  .action-btn { font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; background: none; cursor: pointer; font-family: inherit; padding: 8px 14px; border: 1px solid #0a0a0a; transition: background .15s ease, color .15s ease; }
+  .action-btn.edit { color: #0a0a0a; }
+  .action-btn.edit:hover { background: #0a0a0a; color: #f5f4f2; }
+  .action-btn.delete { color: #b3261e; border-color: #b3261e; }
+  .action-btn.delete:hover { background: #b3261e; color: #f5f4f2; }
+  .empty-state { text-align: center; padding: 80px 0; font-size: 13px; color: #9a9a95; letter-spacing: 0.02em; display: none; }
+  @media (max-width: 900px) { main { grid-template-columns: 1fr; gap: 64px; } }
+</style>
+</head>
+<body>
+<header>
+  <div class="header-inner">
+    <div class="brand">Sous<span>Client</span>Pro</div>
+    <div class="header-right">
+      <span class="tag">Sujet 4 · Souscriptions</span>
+      <button class="logout-btn" id="logout-btn">Déconnexion</button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <section>
+    <h1 class="section-title" id="form-eyebrow">Nouvelle entrée</h1>
+    <p class="form-title" id="form-title">Souscription</p>
+    <p class="form-sub">Un client ne peut souscrire deux fois au même produit.</p>
+
+    <form id="souscription-form" novalidate>
+      <input type="hidden" id="souscription_id" value="">
+
+      <div class="field">
+        <label for="code_client">Code client</label>
+        <input id="code_client" name="code_client" type="text" maxlength="8" placeholder="12345678">
+        <p class="field-error" data-error-for="code_client"></p>
+      </div>
+
+      <div class="field">
+        <label for="nom_client">Nom du client</label>
+        <input id="nom_client" name="nom_client" type="text" placeholder="Camille Martin">
+        <p class="field-error" data-error-for="nom_client"></p>
+      </div>
+
+      <div class="field">
+        <label for="produit">Produit souscrit</label>
+        <select id="produit" name="produit">
+          <option value="">Sélectionner un produit</option>
+          <option value="LIVRET_EPARGNE">Livret d'épargne</option>
+          <option value="ASSURANCE_VIE">Assurance vie</option>
+          <option value="CREDIT_CONSOMMATION">Crédit consommation</option>
+          <option value="COMPTE_COURANT">Compte courant</option>
+          <option value="CARTE_PREMIUM">Carte premium</option>
+        </select>
+        <p class="field-error" data-error-for="produit"></p>
+      </div>
+
+      <div class="field">
+        <label for="date_souscription">Date de souscription</label>
+        <input id="date_souscription" name="date_souscription" type="date">
+        <p class="field-error" data-error-for="date_souscription"></p>
+      </div>
+
+      <div class="btn-row">
+        <button type="submit" id="submit-btn">Enregistrer</button>
+        <button type="button" class="cancel-btn" id="cancel-edit-btn">Annuler</button>
+      </div>
+    </form>
+
+    <div id="alert-zone"></div>
+  </section>
+
+  <section>
+    <div class="table-header">
+      <div>
+        <h1 class="section-title">Historique</h1>
+        <p class="form-title" style="font-size:20px;margin-bottom:0;">Souscriptions enregistrées</p>
+      </div>
+      <button class="refresh-btn" id="refresh-btn">Actualiser</button>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Code client</th>
+          <th>Nom</th>
+          <th>Produit</th>
+          <th>Date</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="souscriptions-body"></tbody>
+    </table>
+    <p class="empty-state" id="empty-state">Aucune souscription enregistrée pour le moment.</p>
+  </section>
+</main>
+
+<script>
+const PRODUITS_LABELS = {
+  LIVRET_EPARGNE: "Livret d'épargne",
+  ASSURANCE_VIE: "Assurance vie",
+  CREDIT_CONSOMMATION: "Crédit consommation",
+  COMPTE_COURANT: "Compte courant",
+  CARTE_PREMIUM: "Carte premium",
+};
+
+const form = document.getElementById('souscription-form');
+const submitBtn = document.getElementById('submit-btn');
+const cancelEditBtn = document.getElementById('cancel-edit-btn');
+const formTitle = document.getElementById('form-title');
+const formEyebrow = document.getElementById('form-eyebrow');
+const alertZone = document.getElementById('alert-zone');
+const souscriptionsBody = document.getElementById('souscriptions-body');
+const emptyState = document.getElementById('empty-state');
+const idField = document.getElementById('souscription_id');
+
+const CODE_CLIENT_REGEX = /^\d{8}$/;
+
+function clearFieldErrors() {
+  document.querySelectorAll('.field-error').forEach(el => { el.style.display = 'none'; el.textContent = ''; });
+}
+
+function showFieldError(field, message) {
+  const el = document.querySelector(`[data-error-for="${field}"]`);
+  if (el) { el.textContent = message; el.style.display = 'block'; }
+}
+
+function validerFormulaireClient(values) {
+  const erreurs = {};
+  if (!CODE_CLIENT_REGEX.test(values.code_client)) erreurs.code_client = "8 chiffres exactement requis.";
+  if (!values.nom_client) erreurs.nom_client = "Le nom du client est obligatoire.";
+  if (!values.produit) erreurs.produit = "Sélectionnez un produit.";
+  if (!values.date_souscription) {
+    erreurs.date_souscription = "La date de souscription est obligatoire.";
+  } else if (values.date_souscription > new Date().toISOString().slice(0, 10)) {
+    erreurs.date_souscription = "La date ne peut pas être dans le futur.";
+  }
+  return erreurs;
+}
+
+function renderAlert(type, message) {
+  alertZone.innerHTML = `<div class="alert ${type}">${message}</div>`;
+}
+
+function formatDate(iso) {
+  const d = new Date(iso + 'T00:00:00');
+  return d.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+}
+
+function resetForm() {
+  form.reset();
+  idField.value = '';
+  formEyebrow.textContent = 'Nouvelle entrée';
+  formTitle.textContent = 'Souscription';
+  submitBtn.textContent = 'Enregistrer';
+  cancelEditBtn.style.display = 'none';
+}
+
+async function handleUnauthorized(res) {
+  if (res.status === 401) { window.location.href = '/login'; return true; }
+  return false;
+}
+
+async function chargerSouscriptions() {
+  try {
+    const res = await fetch('/api/souscriptions');
+    if (await handleUnauthorized(res)) return;
+    const data = await res.json();
+    const souscriptions = data.souscriptions || [];
+
+    if (souscriptions.length === 0) {
+      souscriptionsBody.innerHTML = '';
+      emptyState.style.display = 'block';
+      return;
+    }
+    emptyState.style.display = 'none';
+
+    souscriptionsBody.innerHTML = souscriptions.map(s => `
+      <tr data-id="${s.id}">
+        <td style="font-family:monospace;">${s.code_client}</td>
+        <td>${s.nom_client}</td>
+        <td><span class="produit-tag">${PRODUITS_LABELS[s.produit] || s.produit}</span></td>
+        <td style="color:#6b6b67;">${formatDate(s.date_souscription)}</td>
+        <td>
+          <div class="actions-cell">
+            <button class="action-btn edit" data-id="${s.id}">Modifier</button>
+            <button class="action-btn delete" data-id="${s.id}">Supprimer</button>
+          </div>
+        </td>
+      </tr>
+    `).join('');
+
+    document.querySelectorAll('.action-btn.edit').forEach(btn => btn.addEventListener('click', () => chargerPourEdition(btn.dataset.id)));
+    document.querySelectorAll('.action-btn.delete').forEach(btn => btn.addEventListener('click', () => supprimerSouscription(btn.dataset.id)));
+  } catch (err) {
+    console.error('Erreur de chargement des souscriptions', err);
+  }
+}
+
+async function chargerPourEdition(id) {
+  try {
+    const res = await fetch(`/api/souscriptions/${id}`);
+    if (await handleUnauthorized(res)) return;
+    const data = await res.json();
+    if (!data.success) return;
+    const s = data.souscription;
+    idField.value = s.id;
+    document.getElementById('code_client').value = s.code_client;
+    document.getElementById('nom_client').value = s.nom_client;
+    document.getElementById('produit').value = s.produit;
+    document.getElementById('date_souscription').value = s.date_souscription;
+    formEyebrow.textContent = `Modification #${s.id}`;
+    formTitle.textContent = 'Souscription';
+    submitBtn.textContent = 'Mettre à jour';
+    cancelEditBtn.style.display = 'block';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  } catch (err) {
+    renderAlert('error', 'Impossible de charger la souscription.');
+  }
+}
+
+async function supprimerSouscription(id) {
+  if (!confirm('Supprimer cette souscription ?')) return;
+  try {
+    const res = await fetch(`/api/souscriptions/${id}`, { method: 'DELETE' });
+    if (await handleUnauthorized(res)) return;
+    const data = await res.json();
+    if (data.success) {
+      renderAlert('success', 'Souscription supprimée avec succès.');
+      chargerSouscriptions();
+    } else {
+      renderAlert('error', (data.errors || ['Erreur lors de la suppression.']).join(' '));
+    }
+  } catch (err) {
+    renderAlert('error', 'Impossible de contacter le serveur.');
+  }
+}
+
+cancelEditBtn.addEventListener('click', resetForm);
+
+document.getElementById('logout-btn').addEventListener('click', async () => {
+  await fetch('/api/logout', { method: 'POST' });
+  window.location.href = '/login';
+});
+
+form.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  clearFieldErrors();
+  alertZone.innerHTML = '';
+
+  const values = {
+    code_client: document.getElementById('code_client').value.trim(),
+    nom_client: document.getElementById('nom_client').value.trim(),
+    produit: document.getElementById('produit').value,
+    date_souscription: document.getElementById('date_souscription').value,
+  };
+
+  const erreurs = validerFormulaireClient(values);
+  if (Object.keys(erreurs).length > 0) {
+    Object.entries(erreurs).forEach(([field, message]) => showFieldError(field, message));
+    return;
+  }
+
+  const id = idField.value;
+  const isEdition = !!id;
+
+  submitBtn.disabled = true;
+  submitBtn.textContent = isEdition ? 'Mise à jour...' : 'Traitement...';
+
+  try {
+    const res = await fetch(isEdition ? `/api/souscriptions/${id}` : '/api/souscriptions', {
+      method: isEdition ? 'PUT' : 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(values),
+    });
+    if (await handleUnauthorized(res)) return;
+    const data = await res.json();
+
+    if (res.ok && data.success) {
+      renderAlert('success', data.message);
+      resetForm();
+      chargerSouscriptions();
+    } else {
+      renderAlert('error', (data.errors || ['Une erreur est survenue.']).join(' '));
+    }
+  } catch (err) {
+    renderAlert('error', 'Impossible de contacter le serveur.');
+  } finally {
+    submitBtn.disabled = false;
+    submitBtn.textContent = isEdition ? 'Mettre à jour' : 'Enregistrer';
+  }
+});
+
+document.getElementById('refresh-btn').addEventListener('click', chargerSouscriptions);
+
+chargerSouscriptions();
+</script>
+</body>
+</html>

@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SousClientPro — Connexion</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Inter', sans-serif; background: #f5f4f2; color: #0a0a0a; min-height: 100vh; }
+  .wrap { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 24px; }
+  .brand { font-size: 13px; letter-spacing: 0.3em; text-transform: uppercase; font-weight: 600; margin-bottom: 56px; }
+  .brand span { color: #8a8a86; }
+  .panel { width: 100%; max-width: 380px; }
+  h1 { font-size: 28px; font-weight: 500; letter-spacing: -0.01em; margin-bottom: 8px; }
+  .sub { font-size: 13px; color: #6b6b67; margin-bottom: 40px; letter-spacing: 0.01em; }
+  form { display: flex; flex-direction: column; gap: 28px; }
+  .field label { display: block; font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase; color: #6b6b67; margin-bottom: 10px; }
+  .field input { width: 100%; border: none; border-bottom: 1px solid #0a0a0a; background: transparent; padding: 8px 0; font-size: 15px; color: #0a0a0a; font-family: inherit; }
+  .field input:focus { outline: none; border-bottom-width: 2px; }
+  .field input::placeholder { color: #b5b5b1; }
+  button[type="submit"] { margin-top: 12px; width: 100%; background: #0a0a0a; color: #f5f4f2; border: none; padding: 16px; font-size: 12px; letter-spacing: 0.2em; text-transform: uppercase; font-weight: 600; cursor: pointer; transition: opacity .15s ease; }
+  button[type="submit"]:hover { opacity: 0.82; }
+  button[type="submit"]:disabled { opacity: 0.4; cursor: default; }
+  .error { font-size: 13px; color: #b3261e; margin-top: -12px; display: none; }
+  .hint { margin-top: 40px; font-size: 12px; color: #9a9a95; letter-spacing: 0.02em; }
+  .foot { position: fixed; bottom: 28px; font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: #b5b5b1; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="brand">Sous<span>Client</span>Pro</div>
+  <div class="panel">
+    <h1>Connexion</h1>
+    <p class="sub">Accédez à la gestion des souscriptions clients.</p>
+    <form id="login-form" novalidate>
+      <div class="field">
+        <label for="username">Identifiant</label>
+        <input id="username" name="username" type="text" autocomplete="username" placeholder="admin">
+      </div>
+      <div class="field">
+        <label for="password">Mot de passe</label>
+        <input id="password" name="password" type="password" autocomplete="current-password" placeholder="••••••••">
+      </div>
+      <p class="error" id="login-error"></p>
+      <button type="submit" id="submit-btn">Se connecter</button>
+    </form>
+    <p class="hint">Identifiants par défaut : admin / admin123</p>
+  </div>
+  <p class="foot">SousClientPro — Sujet 4</p>
+</div>
+<script>
+const form = document.getElementById('login-form');
+const errorEl = document.getElementById('login-error');
+const submitBtn = document.getElementById('submit-btn');
+
+form.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  errorEl.style.display = 'none';
+  submitBtn.disabled = true;
+  submitBtn.textContent = 'Connexion...';
+
+  try {
+    const res = await fetch('/api/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        username: document.getElementById('username').value.trim(),
+        password: document.getElementById('password').value,
+      }),
+    });
+    const data = await res.json();
+    if (res.ok && data.success) {
+      window.location.href = '/';
+    } else {
+      errorEl.textContent = (data.errors || ['Identifiants invalides.']).join(' ');
+      errorEl.style.display = 'block';
+    }
+  } catch (err) {
+    errorEl.textContent = 'Impossible de contacter le serveur.';
+    errorEl.style.display = 'block';
+  } finally {
+    submitBtn.disabled = false;
+    submitBtn.textContent = 'Se connecter';
+  }
+});
+</script>
+</body>
+</html>

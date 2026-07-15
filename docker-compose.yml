@@ -1,0 +1,63 @@
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: souscription_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-souscription_produit}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - backend
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-souscription_produit}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: souscription_api
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-souscription_produit}
+      POSTGRES_HOST: db
+      POSTGRES_PORT: 5432
+      SECRET_KEY: ${SECRET_KEY:-change_me_to_a_random_secret}
+      ADMIN_USERNAME: ${ADMIN_USERNAME:-admin}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-change_me_in_production}
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - backend
+      - frontend
+
+  nginx:
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    container_name: souscription_nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    depends_on:
+      - api
+    networks:
+      - frontend
+
+networks:
+  backend:
+    driver: bridge
+    internal: true
+  frontend:
+    driver: bridge
+
+volumes:
+  postgres_data:
